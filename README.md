@@ -1,4 +1,10 @@
 
+
+QuickCheck
+---
+
+`export RUST_LOG=quickcheck` enables useful QuickCheck output
+
 QuickSort example
 ---
 
