@@ -1,6 +1,4 @@
-
 fn main() {
-
     let mut arr = vec![4, 1, 2, 8, 0, 3];
 
     println!("{:?}", arr);
@@ -10,7 +8,7 @@ fn main() {
     println!("{:?}", arr);
 }
 
-fn heap_sort<T: Ord>(xs: &mut[T]) {
+fn heap_sort<T: Ord>(xs: &mut [T]) {
     heapify(xs);
     let n = xs.len();
     for last_i in (0..n).rev() {
@@ -20,41 +18,44 @@ fn heap_sort<T: Ord>(xs: &mut[T]) {
 }
 
 fn shift_down<T: Ord>(xs: &mut [T], i: usize) {
-
-    //TODO: can be replaced with lambda?
-    fn check_child<T: Ord>(xs: &mut [T], i: usize, child_i: usize) {
+    let mut check_child = |child_i: usize| {
         if child_i < xs.len() {
-            if &xs[child_i] > &xs[i] {
+            if xs[child_i] > xs[i] {
                 xs.swap(i, child_i);
                 shift_down(xs, child_i);
             }
         }
     };
 
-    check_child(xs, i, 2 * i + 1);
-    check_child(xs, i, 2 * i + 2);
+    check_child(left_child_index(i));
+    check_child(right_child_index(i));
+}
+
+fn left_child_index(i: usize) -> usize {
+    2 * i + 1
+}
+
+fn right_child_index(i: usize) -> usize {
+    2 * i + 2
+}
+
+fn parent_index(i: usize) -> Option<usize> {
+    if i == 0 { None } else { Some((i - 1) / 2) }
+}
+
+fn up_heap<T: Ord>(xs: &mut [T], i: usize) {
+    if let Some(p) = parent_index(i) {
+        if xs[p] < xs[i] {
+            xs.swap(p, i);
+            up_heap(xs, p);
+        }
+    }
 }
 
 fn heapify<T: Ord>(xs: &mut [T]) {
-
-    fn parent_index(i: usize) -> Option<usize> {
-        let r = (i as isize - 1) / 2;
-        if r < 0 { None } else { Some(r as usize) }
-    }
-
-    fn up_heap<T: Ord>(xs: &mut [T], i: usize) {
-        if let Some(p) = parent_index(i) {
-            if &xs[p] < &xs[i] {
-                xs.swap(p, i);
-                up_heap(xs, p);
-            }
-        }
-    }
-
     for i in 1..xs.len() {
         up_heap(xs, i);
     }
-
 }
 
 #[cfg(test)]
