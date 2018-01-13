@@ -65,6 +65,21 @@ extern crate quickcheck;
 #[cfg(test)]
 mod tests {
     quickcheck! {
+        fn parent_index_zero(i: usize) -> bool {
+            if i == 0 { parent_index(i) == None }
+            else { parent_index(i) != None }
+        }
+
+        fn partent_left_child_loop(i: usize) -> bool {
+            let child_i = left_child_index(i);
+            Some(i) == parent_index(child_i)
+        }
+
+        fn partent_right_child_loop(i: usize) -> bool {
+            let child_i = right_child_index(i);
+            Some(i) == parent_index(child_i)
+        }
+
         fn keeps_length(xs: Vec<i32>) -> bool {
             let arr = &mut xs.clone();
             let len1 = arr.len();
