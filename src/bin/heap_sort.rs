@@ -63,6 +63,14 @@ pub struct PriorityQueue<T: Ord> {
     queue: Vec<T>
 }
 
+impl <T: Ord> Iterator for PriorityQueue<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.pop()
+    }
+}
+
 impl <T: Ord> PriorityQueue<T> {
 
     pub fn new() -> PriorityQueue<T> {
@@ -95,6 +103,7 @@ extern crate quickcheck;
 #[cfg(test)]
 mod tests {
     quickcheck! {
+
         fn priority_queue_returns_elements_in_reverse_order(xs: Vec<i32>) -> bool {
 
             let mut queue = PriorityQueue::new();
@@ -106,16 +115,48 @@ mod tests {
             xs_sorted.sort();
             xs_sorted.reverse();
 
-            let mut result = Vec::new();
-            while let Some(x) = queue.pop() {
-                result.push(x)
-            }
+            let result: Vec<i32> = queue.collect();
 
             result == xs_sorted
         }
     }
 
     quickcheck! {
+
+        fn heapify_stable(org: Vec<i32>) -> bool {
+            let mut xs = org.clone();
+            heapify(&mut xs);
+
+            let mut ys = xs.clone();
+            heapify(&mut ys);
+
+            xs == ys
+        }
+
+        fn shift_down_cannot_change_heapified(org: Vec<i32>) -> bool {
+            let mut xs = org.clone();
+            heapify(&mut xs);
+
+            let ys = xs.clone();
+            for i in 0..xs.len() {
+                shift_down(&mut xs, i);
+            }
+
+            ys == xs
+        }
+
+        fn up_heap_cannot_change_heapified(org: Vec<i32>) -> bool {
+            let mut xs = org.clone();
+            heapify(&mut xs);
+
+            let ys = xs.clone();
+            for i in 0..xs.len() {
+                up_heap(&mut xs, i);
+            }
+
+            ys == xs
+        }
+
         fn parent_index_zero(i: usize) -> bool {
             if i == 0 { parent_index(i) == None }
             else { parent_index(i) != None }
