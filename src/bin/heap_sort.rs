@@ -1,3 +1,5 @@
+
+
 fn main() {
     let mut arr = vec![4, 1, 2, 8, 0, 3];
 
@@ -18,7 +20,7 @@ fn heap_sort<T: Ord>(xs: &mut [T]) {
 }
 
 fn shift_down<T: Ord>(xs: &mut [T], i: usize) {
-    let mut check_child = |child_i: usize| {
+    let mut check_child = | child_i: usize| {
         if child_i < xs.len() {
             if xs[child_i] > xs[i] {
                 xs.swap(i, child_i);
@@ -26,7 +28,6 @@ fn shift_down<T: Ord>(xs: &mut [T], i: usize) {
             }
         }
     };
-
     check_child(left_child_index(i));
     check_child(right_child_index(i));
 }
@@ -58,12 +59,62 @@ fn heapify<T: Ord>(xs: &mut [T]) {
     }
 }
 
+pub struct PriorityQueue<T: Ord> {
+    queue: Vec<T>
+}
+
+impl <T: Ord> PriorityQueue<T> {
+
+    pub fn new() -> PriorityQueue<T> {
+        PriorityQueue { queue: Default::default() }
+    }
+
+    pub fn push(&mut self, v: T) {
+        self.queue.push(v);
+        let last_index = self.queue.len() - 1;
+        up_heap(&mut self.queue, last_index)
+    }
+
+    pub fn pop(&mut self) -> Option<T> {
+        let len = self.queue.len();
+        if len == 0 { None }
+        else {
+            self.queue.swap(0, len-1);
+            let max = self.queue.pop();
+            shift_down(&mut self.queue, 0);
+            max
+        }
+    }
+}
+
+
 #[cfg(test)]
 #[macro_use]
 extern crate quickcheck;
 
 #[cfg(test)]
 mod tests {
+    quickcheck! {
+        fn priority_queue_returns_elements_in_reverse_order(xs: Vec<i32>) -> bool {
+
+            let mut queue = PriorityQueue::new();
+            for x in xs.clone() {
+                queue.push(x)
+            }
+
+            let mut xs_sorted = xs.clone();
+            xs_sorted.sort();
+            xs_sorted.reverse();
+
+            let mut result = Vec::new();
+            while let Some(x) = queue.pop() {
+                result.push(x)
+            }
+
+            result == xs_sorted
+        }
+    }
+
     quickcheck! {
         fn parent_index_zero(i: usize) -> bool {
             if i == 0 { parent_index(i) == None }
