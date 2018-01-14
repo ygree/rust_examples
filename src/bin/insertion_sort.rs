@@ -37,12 +37,10 @@ mod tests {
         fn never_decrease(xs: Vec<i32>) -> bool {
             let arr = &mut xs.clone();
             insertion_sort(arr);
-            let mut i = 1;
-            while i < arr.len() {
+            for i in 1..arr.len() {
                 if arr[i-1] > arr[i] {
                     return false;
                 }
-                i += 1;
             }
             true
         }
